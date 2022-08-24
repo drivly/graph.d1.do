@@ -15,4 +15,5 @@ export default {
   traverseWithBodiesOutbound: (x, y, obj) => db.prepare(`WITH RECURSIVE traverse(x, y, obj) AS (SELECT :source, '()', '{}' UNION SELECT id, '()', body FROM nodes JOIN traverse ON id = x UNION SELECT target, '->', properties FROM edges JOIN traverse ON source = x) SELECT x, y, obj FROM traverse;`).bind(x, y, obj),
   traverseWithBodies: (x, y, obj) => db.prepare(`WITH RECURSIVE traverse(x, y, obj) AS (SELECT :source, '()', '{}' UNION SELECT id, '()', body FROM nodes JOIN traverse ON id = x UNION SELECT source, '<-', properties FROM edges JOIN traverse ON target = x UNION SELECT target, '->', properties FROM edges JOIN traverse ON source = x) SELECT x, y, obj FROM traverse;`).bind(x, y, obj),
   traverseInbound: id => db.prepare('WITH RECURSIVE traverse(id) AS (SELECT :source UNION SELECT source FROM edges JOIN traverse ON target = id UNION SELECT target FROM edges JOIN traverse ON source = id) SELECT id FROM traverse;').bind(id),
+  updateNode: id => db.prepare('UPDATE nodes SET body = json(?) WHERE id = ?').bind(id),
 }
