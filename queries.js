@@ -12,4 +12,5 @@ export default {
   traverseInbound: id => db.prepare('WITH RECURSIVE traverse(id) AS (SELECT :source UNION SELECT source FROM edges JOIN traverse ON target = id) SELECT id FROM traverse;').bind(id),
   traverseOutbound: id => db.prepare('WITH RECURSIVE traverse(id) AS (SELECT :source UNION SELECT target FROM edges JOIN traverse ON source = id) SELECT id FROM traverse;').bind(id),
   traverseWithBodiesInbound: (x, y, obj) => db.prepare(`WITH RECURSIVE traverse(x, y, obj) AS (SELECT :source, '()', '{}' UNION SELECT id, '()', body FROM nodes JOIN traverse ON id = x UNION SELECT source, '<-', properties FROM edges JOIN traverse ON target = x) SELECT x, y, obj FROM traverse;`).bind(x, y, obj),
+  traverseWithBodiesOutbound: (x, y, obj) => db.prepare(`WITH RECURSIVE traverse(x, y, obj) AS (SELECT :source, '()', '{}' UNION SELECT id, '()', body FROM nodes JOIN traverse ON id = x UNION SELECT target, '->', properties FROM edges JOIN traverse ON source = x) SELECT x, y, obj FROM traverse;`).bind(x, y, obj),
 }
